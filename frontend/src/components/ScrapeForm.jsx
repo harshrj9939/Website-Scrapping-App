@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, TextField, Snackbar, Alert } from '@mui/material';
 
 const ScrapeForm = ({ onScraped }) => {
+    const [domain, setDomain] = useState("");
     const [url, setUrl] = useState('');
     const [error, setError] = useState(null);
     const [open, setOpen] = useState(false);
@@ -25,15 +26,25 @@ const ScrapeForm = ({ onScraped }) => {
         }
         setOpen(false);
     };
+    const handleDomainChange = (e) => {
+        setDomain(e.target.value);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setUrl(`https://${domain}`);
+    };
 
     return (
         <div>
+           
             <TextField 
                 value={url} 
                 onChange={(e) => setUrl(e.target.value)} 
-                label="Website URL" 
+                label="Enter Domain Name" 
                 fullWidth 
                 margin="normal"
+                
             />
             <Button 
                 variant="contained" 
@@ -41,7 +52,7 @@ const ScrapeForm = ({ onScraped }) => {
                 onClick={handleScrape}
                 style={{ marginTop: '10px' }}
             >
-                Scrape
+                Fetch & Save Details
             </Button>
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>

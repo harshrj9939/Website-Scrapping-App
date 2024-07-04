@@ -30,8 +30,7 @@ const App = () => {
     return (
         <Router>
             <Container>
-                <Typography variant="h5" gutterBottom>Website Scraping Web App</Typography>
-                <ScrapeForm onScraped={handleScraped} />
+               <ScrapeForm onScraped={handleScraped} />
                 <CSVDownload companies={companies} />
                 <CompanyTable companies={companies} onDelete={handleDelete} />
                 <Routes>
