@@ -4,7 +4,9 @@ const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const Company = require('../models/Company');
+const { scrapeWebsite } = require('../scraper');
 
+const fs = require('fs');
 const router = express.Router();
 
 const captureScreenshot = async (url, filename) => {

@@ -18,16 +18,16 @@ const CSVDownload = ({ companies }) => {
     ];
 
     const data = companies.map(company => ({
-        name: company.name || "",
-        description: company.description || "",
-        logo: company.logo || "",
-        facebook: company.facebook || "",
-        linkedin: company.linkedin || "",
-        twitter: company.twitter || "",
-        instagram: company.instagram || "",
-        address: company.address || "",
-        phone: company.phone || "",
-        email: company.email || "",
+        name: company.name,
+        description: company.description,
+        logo: company.logo,
+        facebook: company.facebook,
+        linkedin: company.linkedin,
+        twitter: company.twitter,
+        instagram: company.instagram,
+        address: company.address,
+        phone: company.phone,
+        email: company.email,
       }));
 
     return (

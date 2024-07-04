@@ -7,12 +7,14 @@ const CompanyTable = ({ companies, setCompanies, onDelete, onView }) => {
     const [currentPage, setCurrentPage] = React.useState(1);
     const companiesPerPage = 10;
 
+    // Handle individual row selection
     const handleSelect = (id) => {
         setSelected((prevSelected) =>
             prevSelected.includes(id) ? prevSelected.filter(sid => sid !== id) : [...prevSelected, id]
         );
     };
 
+    // Handle select/deselect all rows
     const handleSelectAll = (event) => {
         if (event.target.checked) {
             const newSelecteds = companies.map((company) => company._id);
@@ -22,6 +24,7 @@ const CompanyTable = ({ companies, setCompanies, onDelete, onView }) => {
         setSelected([]);
     };
 
+    // Handle deletion of selected companies
     const handleDelete = async () => {
         try {
             await axios.post('/api/delete', { ids: selected });
@@ -32,6 +35,7 @@ const CompanyTable = ({ companies, setCompanies, onDelete, onView }) => {
         }
     };
 
+    // Handle pagination
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
@@ -41,61 +45,90 @@ const CompanyTable = ({ companies, setCompanies, onDelete, onView }) => {
     const currentCompanies = companies.slice(indexOfFirstCompany, indexOfLastCompany);
 
     return (
-        <div>
-            <Button variant="contained" color="secondary" onClick={handleDelete} disabled={!selected.length}>
-                Delete
-            </Button>
-            <Table>
+        <div style={{ padding: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div>
+                    <span style={{ marginRight: '8px' }}>{selected.length} selected</span>
+                    <Button variant="contained" color="secondary" onClick={handleDelete} disabled={!selected.length}>
+                        Delete
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => handlePageChange(1)}>
+                        Export as CSV
+                    </Button>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ marginRight: '16px' }}>Showing {indexOfFirstCompany + 1}-{indexOfLastCompany} of {companies.length}</span>
+                    {Math.ceil(companies.length / companiesPerPage) > 1 && (
+                        <div>
+                            <Button variant="contained" color="primary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+                                <span style={{ marginRight: '4px' }}>&lt;</span>
+                                1
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={() => handlePageChange(currentPage)}>
+                                {currentPage}
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === Math.ceil(companies.length / companiesPerPage)}>
+                                {currentPage + 1}
+                            </Button>
+                            <span>...</span>
+                            <Button variant="contained" color="primary" onClick={() => handlePageChange(Math.ceil(companies.length / companiesPerPage))}>
+                                100
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === Math.ceil(companies.length / companiesPerPage)}>
+                                &gt;
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </div>
+            <Table style={{ borderCollapse: 'collapse' }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell padding="checkbox">
+                        <TableCell padding="checkbox" style={{ width: '40px', borderBottom: '1px solid #ddd' }}>
                             <Checkbox
                                 indeterminate={selected.length > 0 && selected.length < companies.length}
                                 checked={companies.length > 0 && selected.length === companies.length}
                                 onChange={handleSelectAll}
+                                style={{ color: '#000' }}
                             />
                         </TableCell>
-                        <TableCell>Company</TableCell>
-                        <TableCell>Social Profiles</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Address</TableCell>
-                        <TableCell>Phone No.</TableCell>
-                        <TableCell>Email</TableCell>
+                        <TableCell style={{ width: '40px', borderBottom: '1px solid #ddd' }}>Logo</TableCell>
+                        <TableCell style={{ borderBottom: '1px solid #ddd' }}>COMPANY</TableCell>
+                        <TableCell style={{ borderBottom: '1px solid #ddd' }}>DESCRIPTION</TableCell>
+                        <TableCell style={{ borderBottom: '1px solid #ddd' }}>ADDRESS</TableCell>
+                        <TableCell style={{ borderBottom: '1px solid #ddd' }}>PHONE NO.</TableCell>
+                        <TableCell style={{ borderBottom: '1px solid #ddd' }}>EMAIL</TableCell>
+                        <TableCell style={{ width: '40px', borderBottom: '1px solid #ddd' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {currentCompanies.map((company) => (
-                        <TableRow key={company._id} selected={selected.includes(company._id)}>
-                            <TableCell padding="checkbox">
+                        <TableRow key={company._id} selected={selected.includes(company._id)} style={{ borderBottom: '1px solid #ddd' }}>
+                            <TableCell padding="checkbox" style={{ width: '40px' }}>
                                 <Checkbox
                                     checked={selected.includes(company._id)}
                                     onChange={() => handleSelect(company._id)}
+                                    style={{ color: '#000' }}
                                 />
                             </TableCell>
+                            <TableCell style={{ width: '40px' }}>
+                                {company.logo ? <img src={company.logo} alt="logo" style={{ width: '50px' }} /> : ''}
+                            </TableCell>
                             <TableCell>{company.name}</TableCell>
-                            <TableCell>{company.socialProfiles}</TableCell>
                             <TableCell>{company.description}</TableCell>
-                            <TableCell>{company.address}</TableCell>
-                            <TableCell>{company.phone}</TableCell>
-                            <TableCell>{company.email}</TableCell>
-                            <TableCell>
-                                <Button variant="contained" color="primary" onClick={() => onView(company._id)}>View</Button>
+                            <TableCell>{company.address || 'No Address'}</TableCell>
+                            <TableCell>{company.phone || 'No Phone'}</TableCell>
+                            <TableCell>{company.email || 'No Email'}</TableCell>
+                           
+                            <TableCell style={{ width: '40px' }}>
+                                <Button variant="contained" color="primary" onClick={() => onView(company._id)} style={{ padding: '8px 12px' }}>
+                                    View
+                                </Button>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-            <div>
-                {Math.ceil(companies.length / companiesPerPage) > 1 && (
-                    <div>
-                        {[...Array(Math.ceil(companies.length / companiesPerPage)).keys()].map((page) => (
-                            <Button key={page + 1} onClick={() => handlePageChange(page + 1)}>
-                                {page + 1}
-                            </Button>
-                        ))}
-                    </div>
-                )}
-            </div>
         </div>
     );
 };
