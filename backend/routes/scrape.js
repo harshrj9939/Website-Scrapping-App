@@ -4,17 +4,29 @@ const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const Company = require('../models/Company');
-const { scrapeWebsite } = require('../scraper');
-
 const fs = require('fs');
 const router = express.Router();
 
+// Ensure the screenshots directory exists
+const screenshotsDir = path.join(__dirname, '../screenshots');
+if (!fs.existsSync(screenshotsDir)) {
+    fs.mkdirSync(screenshotsDir);
+}
+
 const captureScreenshot = async (url, filename) => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
-    await page.screenshot({ path: filename, fullPage: true });
-    await browser.close();
+    try {
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'networkidle2' });
+        await page.screenshot({ path: filename, fullPage: true });
+        await browser.close();
+    } catch (error) {
+        console.error(`Error capturing screenshot: ${error}`);
+        throw error;
+    }
 };
 
 router.post('/scrape', async (req, res) => {
@@ -35,7 +47,8 @@ router.post('/scrape', async (req, res) => {
 
         // Capture screenshot
         const screenshotFilename = `screenshots/${Date.now()}.png`;
-        await captureScreenshot(url, screenshotFilename);
+        const screenshotPath = path.join(__dirname, '../', screenshotFilename);
+        await captureScreenshot(url, screenshotPath);
 
         const newCompany = new Company({
             name,
@@ -60,8 +73,13 @@ router.post('/scrape', async (req, res) => {
 });
 
 router.get('/companies', async (req, res) => {
-    const companies = await Company.find();
-    res.json(companies);
+    try {
+        const companies = await Company.find();
+        res.json(companies);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching companies');
+    }
 });
 
 router.post('/delete', async (req, res) => {

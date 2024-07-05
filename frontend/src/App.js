@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BrowserRouter as Router, Route, Routes  } from 'react-router-dom';
-import { Container, Typography } from '@mui/material';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Container } from '@mui/material';
 import ScrapeForm from './components/ScrapeForm';
 import CompanyTable from './components/CompanyTable';
 import CompanyDetails from './components/CompanyDetails';
@@ -12,8 +12,12 @@ const App = () => {
 
     useEffect(() => {
         const fetchCompanies = async () => {
-            const response = await axios.get('/api/companies');
-            setCompanies(response.data);
+            try {
+                const response = await axios.get('/api/companies');
+                setCompanies(response.data);
+            } catch (error) {
+                console.error('Error fetching companies:', error);
+            }
         };
         fetchCompanies();
     }, []);
@@ -30,9 +34,9 @@ const App = () => {
     return (
         <Router>
             <Container>
-               <ScrapeForm onScraped={handleScraped} />
+                <ScrapeForm onScraped={handleScraped} />
                 <CSVDownload companies={companies} />
-                <CompanyTable companies={companies} onDelete={handleDelete} />
+                <CompanyTable companies={companies} setCompanies={setCompanies} onDelete={handleDelete} />
                 <Routes>
                     <Route path="/companies/:id" element={<CompanyDetails />} />
                 </Routes>
